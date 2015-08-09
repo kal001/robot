@@ -1,3 +1,6 @@
+#Robot Control system
+# fernando.lourenco@lourenco.eu
+
 VERSION = "0.1.0"
 
 import RPi.GPIO as GPIO
