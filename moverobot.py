@@ -1,4 +1,4 @@
-#Robot Control system
+# Robot Control system
 # fernando.lourenco@lourenco.eu
 
 VERSION = "0.1.0"
