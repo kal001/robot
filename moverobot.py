@@ -1,7 +1,7 @@
 # Robot Control system
 # fernando.lourenco@lourenco.eu
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 import RPi.GPIO as GPIO
 from time import sleep, time
@@ -10,14 +10,22 @@ import serial
 import hardware
 import datetime
 
+import xlrd
+import csv
+
+from ConfigParser import SafeConfigParser
+import codecs
+
 global port
+global logfile
+global writelog
 
 global speed1
-speed1 = 40.0 # low speed. only 2 front motors running. cm/s
 global speed2
-speed2 = 40.0 # high speed. 2 front motors and 2 rear motors running. cm/s
+
 global highspeed
 highspeed = False
+
 
 def readserial():
     start = time()
@@ -64,6 +72,7 @@ def roda(angulo):
 
 def ligamotoresfrente(distancia, highspeed):
     print "Distance %7.2f cm; Highspeed = %s; Hour = %s" % (distancia, repr(highspeed), datetime.datetime.now().time())
+    writelog.writerow([distancia, repr(highspeed), datetime.datetime.now().time()])
 
     GPIO.output(hardware.motorFEIA, 0)
     GPIO.output(hardware.motorFEIB, 1)
@@ -86,6 +95,7 @@ def ligamotoresfrente(distancia, highspeed):
 
 def ligamotorestras(distancia, highspeed):
     print "Distance %7.2f cm; Highspeed = %s; Hour = %s" % (distancia, repr(highspeed), datetime.datetime.now().time())
+    writelog.writerow([distancia, repr(highspeed), datetime.datetime.now().time()])
 
     GPIO.output(hardware.motorFDIA, 0)
     GPIO.output(hardware.motorFDIB, 1)
@@ -219,36 +229,72 @@ parser.add_argument('-g', '--debug', help='Debug function', action='store_true',
 parser.add_argument('-s', '--sensor', help='Measure distance to obstacle (in cm)', action='store_true', required=False)
 parser.add_argument('-w', '--lowspeed', help='Turn on only 2 motors', action='store_true', default = False, required=False)
 parser.add_argument('-p', '--stop', help='Stop all movement', action='store_true', required=False)
+parser.add_argument('-c', '--track', help='xlsx file describing track to follow', nargs = 1, default = ['path-test 1.xlsx'],required=False)
 
 parser.add_argument('-v', '--version', action='version', version='fernando.lourenco@lourenco.eu - %(prog)s')
 
 args = parser.parse_args()
 
-port = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=0.05)
-
+# Read time to run motors
 try:
     tempo = float(args.time[0])
 except:
     tempo = 1
 
+# Read config file
+parser = SafeConfigParser()
+# Open the file with the correct encoding
+with codecs.open('4wheel.ini', 'r', encoding='utf-8') as f:
+    parser.readfp(f)
+speed1 = parser.get('Movement', 'speed1')
+speed2 = parser.get('Movement', 'speed2')
+
+port = serial.Serial(parser.get('Serial', 'port'), baudrate=parser.get('Serial', 'baudrate'), timeout=0.05)
+
+#Create Logfile
+logfile = open(parser.get('Log', 'logfile'), 'wb')
+writelog = csv.writer(logfile, quoting=csv.QUOTE_ALL)
+writelog.writerow(['Distance (cm)', 'Highspeed', 'Hour'])
+
+# Debug purposes only
 if args.debug:
     andafrenteatebater()
 
+# Choose speed of movement
 if args.lowspeed:
     highspeed = False
 else:
     highspeed = True
 
+# Stop car
 if args.stop:
     para()
 
+# Rotate servo of distance sensor
 if args.angle:
     angulo = float(args.angle[0])
     roda(angulo)
 
+# Read distance sensor
 if args.sensor:
     print "Distance to obstacle is %7.2f cm" % mededistancia()
 
+# Read track file if it exists
+if args.track<>'':
+    try:
+        wb = xlrd.open_workbook(args.track[0])
+        sh = wb.sheet_by_name('Sheet1')
+
+        for rownum in xrange(sh.nrows):
+            linha = []
+            coluna = 0
+            for entry in sh.row_values(rownum):
+                #print "Row=%d; Column=%d; Contents=%s" % (rownum, coluna,entry)
+                coluna = coluna+1
+
+    except Exception as e: print(e)
+
+#Move Car
 if args.front:
     if args.right:
         andafrentedireita(tempo)
@@ -264,5 +310,8 @@ elif args.back:
     else:
         andatras(tempo)
 
+#Clean-up
 para()
 GPIO.cleanup()
+
+logfile.close()
