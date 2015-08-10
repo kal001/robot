@@ -10,6 +10,8 @@ import serial
 import hardware
 import datetime
 
+import traceback
+
 import xlrd
 import csv
 
@@ -141,6 +143,9 @@ def andafrenteatebater():
                     print "Distance %7.2f cm; Highspeed = %s; Hour = %s" % (distancia, repr(highspeed), datetime.datetime.now().time())
 
     para()
+
+def track (xfinal, yfinal):
+    print "Destination x=%d; y=%d" % (xfinal, yfinal)
 
 def andafrente(tempo):
     ligamotoresfrente(0, highspeed)
@@ -280,7 +285,7 @@ if args.sensor:
     print "Distance to obstacle is %7.2f cm" % mededistancia()
 
 # Read track file if it exists
-if args.track<>'':
+if args.track:
     try:
         wb = xlrd.open_workbook(args.track[0])
         sh = wb.sheet_by_name('Sheet1')
@@ -288,13 +293,20 @@ if args.track<>'':
         for rownum in xrange(sh.nrows):
             linha = []
             coluna = 0
+            x = 0
+            y = 0
             for entry in sh.row_values(rownum):
                 #print "Row=%d; Column=%d; Contents=%s" % (rownum, coluna,entry)
+                if rownum<>0:
+                    if coluna == 0: x = entry
+                    if coluna == 1: y = entry
                 coluna = coluna+1
+            if rownum<>0: track(x,y)
 
-    except Exception as e: print(e)
+    except Exception:
+        print "Can't open file '%s'" % args.track[0]
+        #traceback.print_exc()
 
-#Move Car
 if args.front:
     if args.right:
         andafrentedireita(tempo)
