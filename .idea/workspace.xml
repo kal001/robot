@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="34e93656-130b-433f-83ec-c8d87b9550d2" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Home Directory.iml" afterPath="$PROJECT_DIR$/.idea/Home Directory.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/moverobot.py" afterPath="$PROJECT_DIR$/moverobot.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/arduino/serial/serial.ino" afterPath="$PROJECT_DIR$/arduino/serial/serial.ino" />
     </list>
     <ignored path="Home Directory.iws" />
@@ -31,7 +28,7 @@
       <file leaf-file-name="moverobot.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/moverobot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="16" selection-start="72" selection-end="72" vertical-scroll-proportion="0.09313726" vertical-offset="0" max-vertical-offset="7334">
+            <state line="170" column="20" selection-start="3963" selection-end="3963" vertical-scroll-proportion="0.5588235" vertical-offset="2888" max-vertical-offset="7334">
               <folding>
                 <element signature="e#75#98#0" expanded="true" />
               </folding>
@@ -231,7 +228,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/moverobot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="16" selection-start="72" selection-end="72" vertical-scroll-proportion="0.09313726" vertical-offset="0" max-vertical-offset="7334">
+        <state line="170" column="20" selection-start="3963" selection-end="3963" vertical-scroll-proportion="0.5588235" vertical-offset="2888" max-vertical-offset="7334">
           <folding>
             <element signature="e#75#98#0" expanded="true" />
           </folding>
