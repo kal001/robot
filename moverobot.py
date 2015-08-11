@@ -1,7 +1,7 @@
 # Robot Control system
 # fernando.lourenco@lourenco.eu
 
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 
 import RPi.GPIO as GPIO
 from time import sleep, time
@@ -18,16 +18,18 @@ import csv
 from ConfigParser import SafeConfigParser
 import codecs
 
+import math
+
 global port
 global logfile
 global writelog
 
-global speed1
-global speed2
+global speed1, speed2
 
 global highspeed
 highspeed = False
 
+global xpos, ypos, alphapos
 
 def readserial():
     start = time()
@@ -144,8 +146,53 @@ def andafrenteatebater():
 
     para()
 
+def readcompass():
+    compass = 0
+    ntent = 3
+
+    while (compass == 0) and (ntent>0):
+        port.flushInput()
+        port.flushOutput()
+
+        port.write("C\n")
+        resposta = readserial()
+
+        try:
+            compass = float(resposta)
+        except:
+            compass = 0
+
+        resposta = readserial()
+
+        ntent -= 1
+
+    return compass
+
+def rotatecar(angle):
+    if angle<alphapos:
+        #rotate right
+        while alphapos>angle:
+            andafrentedireita(0.1)
+            alphapos = readcompass()
+    else:
+        #rotate left
+        while alphapos<angle:
+            andafrenteesquerda(0.1)
+            alphapos = readcompass()
+
 def track (xfinal, yfinal):
     print "Destination x=%d; y=%d" % (xfinal, yfinal)
+
+    rota = atan2(yfinal-ypos, xfinal-xpos)/math.pi*180
+    roda(rota)
+
+    distancia = mededistancia()
+
+    if distancia>math.sqrt(math.pow(yfinal-ypos,2)+math.pow(xfinal-xpos,2))+5:
+        rotatecar(rota)
+        #move ahead
+    else:
+        print "Obstacle detected! Aborting."
 
 def andafrente(tempo):
     ligamotoresfrente(0, highspeed)
@@ -245,6 +292,11 @@ try:
     tempo = float(args.time[0])
 except:
     tempo = 1
+
+#Define initial position and course
+xpos = 0
+ypos = 0
+alphapos = 0
 
 # Read config file
 parser = SafeConfigParser()

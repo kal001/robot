@@ -129,6 +129,16 @@ void loop() {
                   Serial.println(distancestr);
                   Serial.println("OK"); 
                   break;
+        case 'C': 
+                  float course;
+                  char coursestr[15];
+                  
+                  course = 0.0;
+                  dtostrf(course, 4, 2, coursestr);
+                 
+                  Serial.println(coursestr);
+                  Serial.println("OK"); 
+                  break;
         default:
                  Serial.println("UNKNOWN");  
                   break;
